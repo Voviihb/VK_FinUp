@@ -74,7 +74,7 @@ class LoginScreenFragment : Fragment() {
         val preferencesManager = PreferencesManager(requireContext())
         val data = preferencesManager.getData("logged", "false")
         if (isLogged(data = data)) {
-            launchNextScreen(parentFragmentManager) { AccountsScreenFragment.newInstance() }
+            launchNextScreen(parentFragmentManager) { OperationsScreenFragment.newInstance() }
         }
         return ComposeView(requireContext()).apply {
             setContent {
@@ -302,7 +302,7 @@ fun LoginForm(
                     viewModel.clearError()
                     viewModel.login(
                         authFunc = { launchNextScreen(parentFragmentManager
-                        ) { AccountsScreenFragment.newInstance() }
+                        ) { OperationsScreenFragment.newInstance() }
                         },
                         onLogin = { writeLogged(preferencesManager) }
                     )
