@@ -74,7 +74,7 @@ class LoginScreenFragment : Fragment() {
         val preferencesManager = PreferencesManager(requireContext())
         val data = preferencesManager.getData("logged", "false")
         if (isLogged(data = data)) {
-            launchNextScreen(parentFragmentManager) { AccountsScreenFragment.newInstance() }
+            launchNextScreen(parentFragmentManager) { OperationsScreenFragment.newInstance() }
         }
         return ComposeView(requireContext()).apply {
             setContent {
@@ -132,6 +132,11 @@ class LoginScreenFragment : Fragment() {
                 }
             }
         }
+    }
+
+    companion object {
+        fun newInstance() =
+            LoginScreenFragment()
     }
 }
 
@@ -301,8 +306,10 @@ fun LoginForm(
                 onClick = {
                     viewModel.clearError()
                     viewModel.login(
-                        authFunc = { launchNextScreen(parentFragmentManager
-                        ) { AccountsScreenFragment.newInstance() }
+                        authFunc = {
+                            launchNextScreen(
+                                parentFragmentManager
+                            ) { OperationsScreenFragment.newInstance() }
                         },
                         onLogin = { writeLogged(preferencesManager) }
                     )
@@ -379,26 +386,4 @@ fun ShowLoading() {
         }
 
     }
-}
-
-
-fun launchNextScreen(parentFragmentManager: FragmentManager, func: () -> Fragment) {
-    parentFragmentManager.beginTransaction()
-        .replace(
-            R.id.fragment_container,
-            func()
-        )
-        .commit()
-}
-
-
-fun isLogged(data: String): Boolean {
-    if (data == "true") {
-        return true
-    }
-    return false
-}
-
-fun writeLogged(preferencesManager: PreferencesManager) {
-    preferencesManager.saveData("logged", "true")
 }
