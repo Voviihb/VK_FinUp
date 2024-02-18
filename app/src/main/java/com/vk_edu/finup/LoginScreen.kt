@@ -133,6 +133,11 @@ class LoginScreenFragment : Fragment() {
             }
         }
     }
+
+    companion object {
+        fun newInstance() =
+            LoginScreenFragment()
+    }
 }
 
 
@@ -301,8 +306,10 @@ fun LoginForm(
                 onClick = {
                     viewModel.clearError()
                     viewModel.login(
-                        authFunc = { launchNextScreen(parentFragmentManager
-                        ) { OperationsScreenFragment.newInstance() }
+                        authFunc = {
+                            launchNextScreen(
+                                parentFragmentManager
+                            ) { OperationsScreenFragment.newInstance() }
                         },
                         onLogin = { writeLogged(preferencesManager) }
                     )
@@ -379,26 +386,4 @@ fun ShowLoading() {
         }
 
     }
-}
-
-
-fun launchNextScreen(parentFragmentManager: FragmentManager, func: () -> Fragment) {
-    parentFragmentManager.beginTransaction()
-        .replace(
-            R.id.fragment_container,
-            func()
-        )
-        .commit()
-}
-
-
-fun isLogged(data: String): Boolean {
-    if (data == "true") {
-        return true
-    }
-    return false
-}
-
-fun writeLogged(preferencesManager: PreferencesManager) {
-    preferencesManager.saveData("logged", "true")
 }

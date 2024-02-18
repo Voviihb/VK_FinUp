@@ -220,7 +220,7 @@ fun mainScreen(parentFragmentManager: FragmentManager) {
             ) {
                 redirectCard(
                     R.drawable.main_screen,
-                    stringResource(R.string.first),
+                    stringResource(R.string.operations),
                     parentFragmentManager
                 ) { OperationsScreenFragment.newInstance() }
                 redirectCard(
@@ -234,7 +234,7 @@ fun mainScreen(parentFragmentManager: FragmentManager) {
                 redirectCard(
                     R.drawable.more, stringResource(R.string.forth),
                     parentFragmentManager
-                ) { OperationsScreenFragment.newInstance() }
+                ) { MenuScreenFragment.newInstance() }
             }
         }
     }
@@ -335,7 +335,7 @@ fun amountCard(
             Text(sum, fontSize = 4.5.em)
 
             Button(
-                onClick = { add(parentFragmentManager, func) },
+                onClick = { addFragmentBackStack(parentFragmentManager, func) },
                 contentPadding = PaddingValues(0.dp),
                 shape = MaterialTheme.shapes.extraSmall,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
@@ -408,7 +408,7 @@ fun redirectCard(
     Card(
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         shape = MaterialTheme.shapes.extraSmall,
-        modifier = Modifier.clickable(onClick = { add(parentFragmentManager) { func() } })
+        modifier = Modifier.clickable(onClick = { addFragmentBackStack(parentFragmentManager) { func() } })
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -422,13 +422,4 @@ fun redirectCard(
             Text(name, fontSize = 4.em)
         }
     }
-}
-
-
-fun add(parentFragmentManager: FragmentManager, func: () -> Fragment) {
-    parentFragmentManager
-        .beginTransaction()
-        .replace(R.id.fragment_container, func())
-        .addToBackStack(null)
-        .commit()
 }
