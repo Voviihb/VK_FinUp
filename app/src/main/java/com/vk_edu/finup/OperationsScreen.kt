@@ -56,7 +56,7 @@ class OperationsScreenFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                mainScreen(parentFragmentManager)
+                MainScreen(parentFragmentManager)
             }
         }
     }
@@ -70,7 +70,7 @@ class OperationsScreenFragment : Fragment() {
 }
 
 @Composable
-fun mainScreen(parentFragmentManager: FragmentManager) {
+fun MainScreen(parentFragmentManager: FragmentManager) {
     val list = remember {
         mutableStateOf(arrayOf<Array<String>>())
     }
@@ -142,7 +142,7 @@ fun mainScreen(parentFragmentManager: FragmentManager) {
                                 .fillMaxWidth(0.5f)
                                 .padding(0.dp, 0.dp, 5.dp, 0.dp)
                         ) {
-                            amountCard(
+                            AmountCard(
                                 name = stringResource(R.string.amount2),
                                 sum = amount2.value,
                                 parentFragmentManager
@@ -154,7 +154,7 @@ fun mainScreen(parentFragmentManager: FragmentManager) {
                                 .fillMaxWidth()
                                 .padding(5.dp, 0.dp, 0.dp, 0.dp)
                         ) {
-                            amountCard(
+                            AmountCard(
                                 name = stringResource(R.string.amount3),
                                 sum = amount3.value,
                                 parentFragmentManager
@@ -204,7 +204,7 @@ fun mainScreen(parentFragmentManager: FragmentManager) {
                                 .padding(0.dp, 10.dp, 0.dp, 0.dp)
                         ) {
                             itemsIndexed(list.value) { i, arr ->
-                                historyCard(arr)
+                                HistoryCard(arr)
                             }
                         }
                 }
@@ -218,20 +218,20 @@ fun mainScreen(parentFragmentManager: FragmentManager) {
                     .padding(0.dp, 5.dp, 0.dp, 0.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                redirectCard(
+                RedirectCard(
                     R.drawable.main_screen,
                     stringResource(R.string.operations),
                     parentFragmentManager
                 ) { OperationsScreenFragment.newInstance() }
-                redirectCard(
+                RedirectCard(
                     R.drawable.bank_accounts, stringResource(R.string.second),
                     parentFragmentManager
                 ) { AccountsScreenFragment.newInstance() }
-                redirectCard(
+                RedirectCard(
                     R.drawable.analytics, stringResource(R.string.third),
                     parentFragmentManager
                 ) { OperationsScreenFragment.newInstance() }
-                redirectCard(
+                RedirectCard(
                     R.drawable.more, stringResource(R.string.forth),
                     parentFragmentManager
                 ) { MenuScreenFragment.newInstance() }
@@ -293,7 +293,7 @@ fun get_data(
 }
 
 @Composable
-fun amountCard(
+fun AmountCard(
     name: String,
     sum: String,
     parentFragmentManager: FragmentManager,
@@ -354,7 +354,7 @@ fun amountCard(
 }
 
 @Composable
-fun historyCard(arr: Array<String>) {
+fun HistoryCard(arr: Array<String>) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -401,7 +401,7 @@ fun historyCard(arr: Array<String>) {
 
 
 @Composable
-fun redirectCard(
+fun RedirectCard(
     resourse: Int, name: String, parentFragmentManager: FragmentManager,
     func: () -> Fragment
 ) {

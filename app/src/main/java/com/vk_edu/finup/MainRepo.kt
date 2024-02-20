@@ -4,11 +4,16 @@ import com.vk_edu.finup.data.AccountDomain
 import com.vk_edu.finup.data.AccountsResponse
 import com.vk_edu.finup.data.BankDomain
 import com.vk_edu.finup.data.BanksResponse
+import com.vk_edu.finup.data.HistoryResponse
 import com.vk_edu.finup.data.ItemLogo
 import com.vk_edu.finup.data.LoginResponse
 import com.vk_edu.finup.data.ResponseStatus
+import com.vk_edu.finup.data.SumsResponse
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
@@ -58,6 +63,57 @@ class MainRepo() {
 
         delay(DELAY_TIME)
         return@withContext BanksResponse(status, banksList)
+    }
 
+    suspend fun getSums(userId: Int = 0) = withContext(Dispatchers.IO) {
+        val status = ResponseStatus.Success //ResponseStatus.Error("Fetching sums error!")
+
+        delay(DELAY_TIME)
+        return@withContext SumsResponse(status, 57400.0, 66800.0)
+    }
+
+    suspend fun getHistory(userId: Int = 0) = withContext(Dispatchers.IO) {
+        val HistoryList = mutableListOf(
+            arrayOf(
+                "Продукты",
+                "Карта **** **** **** 8943",
+                "5 октября 2023 г.",
+                "-1 100 ₽"
+            ),
+            arrayOf(
+                "Зарплата",
+                "Карта **** **** **** 6532",
+                "2 октября 2023 г.",
+                "+10 500 ₽"
+            ),
+            arrayOf(
+                "Продукты",
+                "Карта **** **** **** 8943",
+                "5 октября 2023 г.",
+                "-1 100 ₽"
+            ),
+            arrayOf(
+                "Зарплата",
+                "Карта **** **** **** 6532",
+                "2 октября 2023 г.",
+                "+10 500 ₽"
+            ),
+            arrayOf(
+                "Продукты",
+                "Карта **** **** **** 8943",
+                "5 октября 2023 г.",
+                "-1 100 ₽"
+            ),
+            arrayOf(
+                "Зарплата",
+                "Карта **** **** **** 6532",
+                "2 октября 2023 г.",
+                "+10 500 ₽"
+            )
+        )
+        val status = ResponseStatus.Success //ResponseStatus.Error("Fetching history error!")
+
+        delay(DELAY_TIME)
+        return@withContext HistoryResponse(status, HistoryList)
     }
 }
