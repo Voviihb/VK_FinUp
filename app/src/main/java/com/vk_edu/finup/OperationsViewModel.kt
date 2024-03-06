@@ -5,17 +5,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.vk_edu.finup.data.Account
-import com.vk_edu.finup.data.AccountDomain
-import com.vk_edu.finup.data.AccountError
-import com.vk_edu.finup.data.Bank
-import com.vk_edu.finup.data.IAccount
-import com.vk_edu.finup.data.LogoStorage
 import com.vk_edu.finup.data.ResponseStatus
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-class DataViewModel : ViewModel() {
+class OperationsViewModel : ViewModel() {
     private val EXCEPTION_OCCURRED = "Exception occurred!"
 
     private val mainRepo: MainRepo = MainRepo()
@@ -52,7 +46,10 @@ class DataViewModel : ViewModel() {
             try {
                 val response = mainRepo.getAccounts(userId = userId)
                 if (response.status == ResponseStatus.Success) {
-                    _totalMoney.value = getTotalMoney(response.accounts)
+                    var total = 0.0
+                    for (account in response.accounts)
+                        total += account.totalMoney
+                    _totalMoney.value = total
                     _loading.value = false
                 } else {
                     onError((response.status as ResponseStatus.Error).message)
@@ -70,7 +67,7 @@ class DataViewModel : ViewModel() {
                 val response = mainRepo.getSums(userId = userId)
                 if (response.status == ResponseStatus.Success) {
                     _spendMoney.value = response.spendMoney
-                    _spendMoney.value = response.spendMoney
+                    _receiveMoney.value = response.receiveMoney
                     _loading.value = false
                 } else {
                     onError((response.status as ResponseStatus.Error).message)
@@ -113,14 +110,6 @@ class DataViewModel : ViewModel() {
         getTotalMoney(userId)
         getSums(userId)
         getHistory(userId)
-    }
-
-    private fun getTotalMoney(accounts: List<AccountDomain>): Double {
-        var total = 0.0
-        for (account in accounts) {
-            total += account.totalMoney
-        }
-        return total
     }
 
     private fun onError(message: String) {

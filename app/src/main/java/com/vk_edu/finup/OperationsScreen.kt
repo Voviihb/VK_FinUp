@@ -26,9 +26,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,11 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import androidx.lifecycle.ViewModelProvider
 
 class OperationsScreenFragment : Fragment() {
 
@@ -54,9 +48,18 @@ class OperationsScreenFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val viewModel = ViewModelProvider(requireActivity())[OperationsViewModel::class.java]
         return ComposeView(requireContext()).apply {
             setContent {
-                MainScreen(parentFragmentManager)
+                val loading by viewModel.loading
+                val errorMessage by viewModel.errorMessage
+                val totalMoney by viewModel.totalMoney
+                val history = viewModel.historyList
+                val spendMoney by viewModel.spendMoney
+                val receiveMoney by viewModel.receiveMoney
+
+                MainScreen(parentFragmentManager, loading, errorMessage, totalMoney,
+                    history, spendMoney, receiveMoney)
             }
         }
     }
@@ -65,29 +68,16 @@ class OperationsScreenFragment : Fragment() {
         fun newInstance() =
             OperationsScreenFragment()
     }
-
-
 }
 
 @Composable
-fun MainScreen(parentFragmentManager: FragmentManager) {
-    val list = remember {
-        mutableStateOf(arrayOf<Array<String>>())
-    }
-    val amount1 = remember {
-        mutableStateOf("-")
-    }
-    val amount2 = remember {
-        mutableStateOf("-")
-    }
-    val amount3 = remember {
-        mutableStateOf("-")
-    }
-
+fun MainScreen(parentFragmentManager: FragmentManager, loading: Boolean, errorMessage: String?,
+               totalMoney: Double, history: List<Array<String>>, spendMoney: Double,
+               receiveMoney: Double) {
     Box {
         Image(
             bitmap = ImageBitmap.imageResource(R.drawable.background2),
-            contentDescription = "Фон",
+            contentDescription = stringResource(R.string.background),
             contentScale = ContentScale.FillBounds,
             modifier = Modifier.fillMaxSize()
         )
@@ -110,7 +100,7 @@ fun MainScreen(parentFragmentManager: FragmentManager) {
                         contentDescription = stringResource(R.string.amount1)
                     )
                     Text(stringResource(R.string.title1), fontSize = 6.em, color = Color.Gray)
-                    Text(amount1.value, fontSize = 8.em)
+                    Text(String.format("%.2f", totalMoney), fontSize = 8.em)
                 }
 
                 Column(
@@ -126,7 +116,7 @@ fun MainScreen(parentFragmentManager: FragmentManager) {
                         )
                         Image(
                             bitmap = ImageBitmap.imageResource(R.drawable.calendar),
-                            contentDescription = "Выбор периода",
+                            contentDescription = stringResource(R.string.choose_period),
                             contentScale = ContentScale.FillHeight,
                             modifier = Modifier.height(30.dp)
                         )
@@ -144,7 +134,7 @@ fun MainScreen(parentFragmentManager: FragmentManager) {
                         ) {
                             AmountCard(
                                 name = stringResource(R.string.amount2),
-                                sum = amount2.value,
+                                sum = String.format("%.2f", receiveMoney),
                                 parentFragmentManager
                             ) { AccountsScreenFragment.newInstance() }
                         }
@@ -156,7 +146,7 @@ fun MainScreen(parentFragmentManager: FragmentManager) {
                         ) {
                             AmountCard(
                                 name = stringResource(R.string.amount3),
-                                sum = amount3.value,
+                                sum = String.format("%.2f", spendMoney),
                                 parentFragmentManager
                             ) { NewOutcomeFragment.newInstance() }
                         }
@@ -182,13 +172,13 @@ fun MainScreen(parentFragmentManager: FragmentManager) {
 
                         Image(
                             bitmap = ImageBitmap.imageResource(R.drawable.filter),
-                            contentDescription = "Сортировать",
+                            contentDescription = stringResource(R.string.sort),
                             contentScale = ContentScale.FillHeight,
                             modifier = Modifier.height(30.dp)
                         )
                     }
 
-                    if (list.value.isEmpty())
+                    if (history.isEmpty())
                         Row(
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier
@@ -203,7 +193,7 @@ fun MainScreen(parentFragmentManager: FragmentManager) {
                                 .fillMaxWidth()
                                 .padding(0.dp, 10.dp, 0.dp, 0.dp)
                         ) {
-                            itemsIndexed(list.value) { i, arr ->
+                            itemsIndexed(history) { i, arr ->
                                 HistoryCard(arr)
                             }
                         }
@@ -238,58 +228,6 @@ fun MainScreen(parentFragmentManager: FragmentManager) {
             }
         }
     }
-
-    get_data(list, amount1, amount2, amount3)
-}
-
-fun get_data(
-    list: MutableState<Array<Array<String>>>, amount1: MutableState<String>,
-    amount2: MutableState<String>, amount3: MutableState<String>
-) {
-    CoroutineScope(Dispatchers.IO + CoroutineExceptionHandler { _, e -> println(e) }).launch {
-        delay(4000)
-        amount1.value = "9 400 ₽"
-        amount2.value = "+66 800 ₽"
-        amount3.value = "-57 400 ₽"
-        list.value = arrayOf(
-            arrayOf(
-                "Продукты",
-                "Карта **** **** **** 8943",
-                "5 октября 2023 г.",
-                "-1 100 ₽"
-            ),
-            arrayOf(
-                "Зарплата",
-                "Карта **** **** **** 6532",
-                "2 октября 2023 г.",
-                "+10 500 ₽"
-            ),
-            arrayOf(
-                "Продукты",
-                "Карта **** **** **** 8943",
-                "5 октября 2023 г.",
-                "-1 100 ₽"
-            ),
-            arrayOf(
-                "Зарплата",
-                "Карта **** **** **** 6532",
-                "2 октября 2023 г.",
-                "+10 500 ₽"
-            ),
-            arrayOf(
-                "Продукты",
-                "Карта **** **** **** 8943",
-                "5 октября 2023 г.",
-                "-1 100 ₽"
-            ),
-            arrayOf(
-                "Зарплата",
-                "Карта **** **** **** 6532",
-                "2 октября 2023 г.",
-                "+10 500 ₽"
-            ),
-        )
-    }
 }
 
 @Composable
@@ -319,7 +257,7 @@ fun AmountCard(
 
             Image(
                 bitmap = ImageBitmap.imageResource(R.drawable.go_to),
-                contentDescription = "Просмотреть все",
+                contentDescription = stringResource(R.string.scroll_all),
                 contentScale = ContentScale.FillHeight,
                 modifier = Modifier.height(15.dp)
             )
@@ -343,7 +281,7 @@ fun AmountCard(
             ) {
                 Image(
                     bitmap = ImageBitmap.imageResource(R.drawable.plus),
-                    contentDescription = "Добавить",
+                    contentDescription = stringResource(R.string.add),
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier.size(40.dp)
                 )
@@ -375,7 +313,7 @@ fun HistoryCard(arr: Array<String>) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         bitmap = ImageBitmap.imageResource(R.drawable.basket),
-                        contentDescription = "Иконка категории",
+                        contentDescription = stringResource(R.string.icon_of_category),
                         contentScale = ContentScale.FillHeight,
                         modifier = Modifier
                             .height(30.dp)
@@ -415,7 +353,7 @@ fun RedirectCard(
         ) {
             Image(
                 bitmap = ImageBitmap.imageResource(resourse),
-                contentDescription = "Перейти на",
+                contentDescription = stringResource(R.string.go_to),
                 contentScale = ContentScale.FillHeight,
                 modifier = Modifier.height(60.dp)
             )
