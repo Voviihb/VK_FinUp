@@ -38,6 +38,17 @@
     <string name="second">Счета</string>
     <string name="third">Аналитика</string>
     <string name="forth">Ещё</string>
+    <string name="background">Фон</string>
+    <string name="sort">Сортировать</string>
+    <string name="go_to">Перейти на</string>
+    <string name="icon_of_category">Иконка категории</string>
+    <string name="add">Добавить</string>
+    <string name="scroll_all">Просмотреть все</string>
+    <string name="choose_period">Выбор периода</string>
+    <string name="choose_date">Выбор даты</string>
+    <string name="back">Назад</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="settings">Настройки</string>

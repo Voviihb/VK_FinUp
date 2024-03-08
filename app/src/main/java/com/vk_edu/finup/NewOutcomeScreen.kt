@@ -1,5 +1,6 @@
 package com.vk_edu.finup
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -50,6 +51,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import com.vk_edu.finup.data.PreviewOption
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -61,13 +64,14 @@ class NewOutcomeFragment : Fragment() {
         mutableStateOf(""),
         mutableStateOf(""),
         mutableStateOf(""),
-        mutableStateOf("26.12.2023")
+        mutableStateOf("01.01.2024")
     )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val viewModel = ViewModelProvider(requireActivity())[NewOutcomeViewModel::class.java]
         savedInstanceState?.let {
             val arrStr = it.getStringArray("arr")
             for (i in 0..4) {
@@ -76,8 +80,13 @@ class NewOutcomeFragment : Fragment() {
         }
         return ComposeView(
             requireContext()).apply {
-            setContent{
-                secondScreen(::comeBack, arr)
+            setContent {
+                val loading by viewModel.loading
+                val errorMessage by viewModel.errorMessage
+                val option1List = viewModel.options1List
+                val option2List = viewModel.options2List
+
+                secondScreen(::comeBack, arr, loading, errorMessage, option1List, option2List)
             }
         }
     }
@@ -99,37 +108,15 @@ class NewOutcomeFragment : Fragment() {
 }
 
 
-data class PreviewOption(val text: String, val id: Int)
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun secondScreen(comeback: () -> Unit, arr: Array<MutableState<String>>) {
-    val options1 = remember {
-        mutableStateOf(listOf<PreviewOption>())
-    }
-    val options2 = remember {
-        mutableStateOf(listOf<PreviewOption>())
-    }
-
-    options1.value = listOf(
-        PreviewOption("Автомобиль", 1),
-        PreviewOption("Отдых и развлечения", 2),
-        PreviewOption("Продукты", 3),
-        PreviewOption("Кафе и ресторан", 4),
-        PreviewOption("Одежда", 5),
-        PreviewOption("Здоровье и фитнес", 6),
-        PreviewOption("Подарки", 7),
-        PreviewOption("Общественный транспорт", 8),
-    )
-    options2.value = listOf(
-        PreviewOption("Наличные (200 ₽)", 1),
-        PreviewOption("Карта 894 (20000 ₽)", 2),
-        PreviewOption("Банковский счёт (2000000 ₽)", 3),
-    )
-
+fun secondScreen(comeback: () -> Unit, arr: Array<MutableState<String>>, loading: Boolean,
+                 errorMessage: String?, options1List: List<PreviewOption>,
+                 options2List: List<PreviewOption>) {
     Box {
         Image(
             bitmap = ImageBitmap.imageResource(R.drawable.background2),
-            contentDescription = "Фон",
+            contentDescription = stringResource(R.string.background),
             contentScale = ContentScale.FillBounds,
             modifier = Modifier.fillMaxSize()
         )
@@ -152,7 +139,7 @@ fun secondScreen(comeback: () -> Unit, arr: Array<MutableState<String>>) {
                 ) {
                     Image(
                         bitmap = ImageBitmap.imageResource(R.drawable.back),
-                        contentDescription = "Назад",
+                        contentDescription = stringResource(R.string.back),
                         contentScale = ContentScale.FillHeight,
                         modifier = Modifier.height(30.dp)
                     )
@@ -182,19 +169,21 @@ fun secondScreen(comeback: () -> Unit, arr: Array<MutableState<String>>) {
 
 
                 var selectedOption by remember {
-                    mutableStateOf<PreviewOption?>(if (arr[0].value == "")
-                        null
-                    else
-                        options1.value[arr[0].value.toInt() - 1])
+                    mutableStateOf(
+                        if (arr[0].value == "")
+                            null
+                        else
+                            options1List[arr[0].value.toInt() - 1]
+                    )
                 }
                 TextFieldMenu(
                     label = "",
-                    options = options1.value,
+                    options = options1List,
                     selectedOption = selectedOption,
                     onOptionSelected = { selectedOption = it; if (it != null) arr[0].value = it.id.toString() },
                     optionToString = { it.text },
                     filteredOptions = { searchInput ->
-                        options1.value.filter { it.text.contains(searchInput, ignoreCase = true) }
+                        options1List.filter { it.text.contains(searchInput, ignoreCase = true) }
                     },
                 )
             }
@@ -202,7 +191,7 @@ fun secondScreen(comeback: () -> Unit, arr: Array<MutableState<String>>) {
             Column (modifier = Modifier.padding(0.dp, 25.dp, 0.dp, 0.dp)) {
                 Text(stringResource(R.string.comment), fontSize = 4.em, color = Color.DarkGray)
 
-                val message = remember{ arr[1] }
+                val message = remember { arr[1] }
                 TextField(
                     value = message.value,
                     onValueChange = {newText -> message.value = newText},
@@ -220,19 +209,21 @@ fun secondScreen(comeback: () -> Unit, arr: Array<MutableState<String>>) {
                 Text(stringResource(R.string.bank_account), fontSize = 4.em, color = Color.DarkGray)
 
                 var selectedOption by remember {
-                    mutableStateOf<PreviewOption?>(if (arr[2].value == "")
-                        null
-                    else
-                        options2.value[arr[2].value.toInt() - 1])
+                    mutableStateOf(
+                        if (arr[2].value == "")
+                            null
+                        else
+                            options2List[arr[2].value.toInt() - 1]
+                    )
                 }
                 TextFieldMenu(
                     label = "",
-                    options = options2.value,
+                    options = options2List,
                     selectedOption = selectedOption,
                     onOptionSelected = { selectedOption = it; if (it != null) arr[2].value = it.id.toString() },
                     optionToString = { it.text },
                     filteredOptions = { searchInput ->
-                        options2.value.filter { it.text.contains(searchInput, ignoreCase = true) }
+                        options2List.filter { it.text.contains(searchInput, ignoreCase = true) }
                     },
                 )
             }
@@ -262,9 +253,6 @@ fun secondScreen(comeback: () -> Unit, arr: Array<MutableState<String>>) {
             var showDatePicker by remember {
                 mutableStateOf(false)
             }
-            var selectedDate by remember {
-                mutableLongStateOf(calendar.timeInMillis) // or use mutableStateOf(calendar.timeInMillis)
-            }
             if (showDatePicker) {
                 DatePickerDialog(
                     onDismissRequest = {
@@ -273,16 +261,15 @@ fun secondScreen(comeback: () -> Unit, arr: Array<MutableState<String>>) {
                     confirmButton = {
                         TextButton(onClick = {
                             showDatePicker = false
-                            selectedDate = datePickerState.selectedDateMillis!!
                         }) {
-                            Text(text = "Confirm")
+                            Text(text = stringResource(R.string.confirm))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = {
                             showDatePicker = false
                         }) {
-                            Text(text = "Cancel")
+                            Text(text = stringResource(R.string.cancel))
                         }
                     }
                 ) {
@@ -311,7 +298,7 @@ fun secondScreen(comeback: () -> Unit, arr: Array<MutableState<String>>) {
                     ) {
                         Image(
                             bitmap = ImageBitmap.imageResource(R.drawable.calendar),
-                            contentDescription = "Выбор даты",
+                            contentDescription = stringResource(R.string.choose_period),
                             contentScale = ContentScale.FillHeight,
                             modifier = Modifier.height(30.dp)
                         )
@@ -319,7 +306,7 @@ fun secondScreen(comeback: () -> Unit, arr: Array<MutableState<String>>) {
                 }
 
                 val formatter = SimpleDateFormat("dd.MM.yyyy", Locale.ROOT)
-                val boof = formatter.format(Date(selectedDate))
+                val boof = formatter.format(Date(datePickerState.selectedDateMillis!!))
                 arr[4].value = boof
                 TextField(
                     value = boof,
